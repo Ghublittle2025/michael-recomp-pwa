@@ -100,11 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
     navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Reg Failed:', err));
   }
   
-  // Load saved local meals
+  // Load saved local meals (strictly for today's date)
   const savedMeals = localStorage.getItem('recomp_today_meals');
   if (savedMeals) {
     try {
-      appState.todayMeals = JSON.parse(savedMeals);
+      const parsedSaved = JSON.parse(savedMeals);
+      const todayStr = getLocalDateString();
+      appState.todayMeals = parsedSaved.filter(m => m.date === todayStr);
     } catch(e){}
   }
   
@@ -418,7 +420,8 @@ function initStaplesGrid() {
         fat: item.f || 0,
         fiber: item.fiber || 0,
         goalScore: 'A',
-        time: timeStr
+        time: timeStr,
+        date: getLocalDateString()
       };
 
       appState.todayMeals.unshift(mealEntry);
@@ -581,7 +584,8 @@ function initAILogger() {
         fat: parseNum(lastConsultedMeal.fat),
         fiber: parseNum(lastConsultedMeal.fiber),
         goalScore: lastConsultedMeal.goal_score || 'A',
-        time: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+        time: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
+        date: getLocalDateString()
       };
 
       appState.todayMeals.unshift(mealEntry);
@@ -620,7 +624,8 @@ function initAILogger() {
           fat: parseNum(aiResult.fat),
           fiber: parseNum(aiResult.fiber),
           goalScore: aiResult.goal_score || 'A',
-          time: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+          time: `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`,
+          date: getLocalDateString()
         };
 
         appState.todayMeals.unshift(mealEntry);
@@ -1460,7 +1465,7 @@ async function fetchLiveData() {
       appState.webAppUrl = targetUrl;
       localStorage.setItem('recomp_webapp_url', targetUrl);
 
-      const rawEntries = (data.todayMacros && data.todayMacros.length > 0) ? data.todayMacros : (data.allMacros || []);
+      const rawEntries = data.todayMacros || [];
 
       const parsed = rawEntries.map(r => {
         const food = r['Food / Meal Item'] || r.Food || r.food || r.Meal || r.food_name || '';
@@ -1484,13 +1489,11 @@ async function fetchLiveData() {
         return { food, calories, protein, carbs, fat, fiber, goalScore, time, date: dateVal };
       }).filter(m => m.food && m.calories > 0);
 
-      const todayMatches = parsed.filter(m => !m.date || m.date.startsWith(localDate));
+      // Strictly filter for today's date (localDate) only
+      const todayMatches = parsed.filter(m => m.date && m.date.startsWith(localDate));
 
-      if (todayMatches.length > 0) {
-        appState.todayMeals = todayMatches;
-      } else if (parsed.length > 0) {
-        appState.todayMeals = parsed;
-      }
+      appState.todayMeals = todayMatches;
+      localStorage.setItem('recomp_today_meals', JSON.stringify(appState.todayMeals));
 
       if (data.checkins && data.checkins.length > 0) {
         appState.checkins = data.checkins.map(parseCheckinRow).filter(c => c.Date && c.Weight > 0);
