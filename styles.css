@@ -129,6 +129,10 @@ body {
   transform: translateY(-2px);
 }
 
+.icon-btn *, .submit-ai-btn * {
+  pointer-events: none;
+}
+
 /* Glass Card Component */
 .glass-card {
   background: var(--bg-card);

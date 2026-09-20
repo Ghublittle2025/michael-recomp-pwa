@@ -275,7 +275,9 @@
               <button id="btn-upload-inbody-scan" class="submit-ai-btn" style="padding:4px 10px; font-size:0.75rem; background:linear-gradient(135deg, var(--clr-primary), var(--clr-purple));" title="Scan InBody Result Sheet via Gemini Vision AI">
                 <i class="fa-solid fa-camera"></i> Scan InBody Sheet
               </button>
-              <button id="btn-add-checkin" onclick="openInBodyManualModal()" class="icon-btn" style="width:30px; height:30px; font-size:0.8rem;" title="Manual Entry"><i class="fa-solid fa-plus"></i></button>
+              <button id="btn-add-checkin" onclick="openInBodyManualModal()" class="submit-ai-btn" style="padding:4px 10px; font-size:0.75rem; background:linear-gradient(135deg, #00E676, #00F2FE); color:#0B0F17; font-weight:700;" title="Manual InBody Entry">
+                <i class="fa-solid fa-plus"></i> + Manual Log
+              </button>
             </div>
           </div>
 
@@ -409,49 +411,51 @@
             <i class="fa-solid fa-floppy-disk"></i> Save Staple
           </button>
         </div>
-  </div>
-
-  <!-- Manual InBody Entry Modal -->
-  <div id="modal-inbody-checkin" class="modal-overlay">
-    <div class="modal-content">
-      <div class="card-title">
-        <span><i class="fa-solid fa-calculator"></i> Log InBody Scan Manually</span>
-        <button id="btn-close-inbody-modal" onclick="closeInBodyManualModal()" class="icon-btn" style="width:28px; height:28px;"><i class="fa-solid fa-xmark"></i></button>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
-        <div>
-          <label style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">Scan Date</label>
-          <input type="date" id="inbody-input-date" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:8px; margin-top:4px;">
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-          <div>
-            <label style="font-size:0.75rem; color:var(--text-muted);">Scale Weight (lbs)</label>
-            <input type="number" id="inbody-input-weight" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="0.1" placeholder="228.8">
-          </div>
-          <div>
-            <label style="font-size:0.75rem; color:var(--text-muted);">Skeletal Muscle (lbs)</label>
-            <input type="number" id="inbody-input-smm" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="0.1" placeholder="104.1">
-          </div>
-          <div>
-            <label style="font-size:0.75rem; color:var(--text-muted);">Body Fat % (e.g. 21.6)</label>
-            <input type="number" id="inbody-input-bfp" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="0.1" placeholder="21.6">
-          </div>
-          <div>
-            <label style="font-size:0.75rem; color:var(--text-muted);">Body Fat Mass (lbs)</label>
-            <input type="number" id="inbody-input-bfm" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="0.1" placeholder="49.4">
-          </div>
-          <div style="grid-column: span 2;">
-            <label style="font-size:0.75rem; color:var(--text-muted);">InBody Score (Out of 100)</label>
-            <input type="number" id="inbody-input-score" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="1" placeholder="85">
-          </div>
+    <!-- Manual InBody Entry Modal -->
+    <div id="modal-inbody-checkin" class="modal-overlay">
+      <div class="modal-content">
+        <div class="card-title">
+          <span><i class="fa-solid fa-calculator"></i> Log InBody Scan Manually</span>
+          <button id="btn-close-inbody-modal" onclick="closeInBodyManualModal()" class="icon-btn" style="width:28px; height:28px;"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <button id="btn-save-inbody-manual" class="submit-ai-btn" style="margin-top:8px;">
-          <i class="fa-solid fa-floppy-disk"></i> Save InBody Scan
-        </button>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+          <div>
+            <label style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">Scan Date</label>
+            <input type="date" id="inbody-input-date" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:8px; margin-top:4px;">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div>
+              <label style="font-size:0.75rem; color:var(--text-muted);">Scale Weight (lbs)</label>
+              <input type="number" id="inbody-input-weight" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="0.1" placeholder="228.8">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; color:var(--text-muted);">Skeletal Muscle (lbs)</label>
+              <input type="number" id="inbody-input-smm" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="0.1" placeholder="104.1">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; color:var(--text-muted);">Body Fat % (e.g. 21.6)</label>
+              <input type="number" id="inbody-input-bfp" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="0.1" placeholder="21.6">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; color:var(--text-muted);">Body Fat Mass (lbs)</label>
+              <input type="number" id="inbody-input-bfm" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="0.1" placeholder="49.4">
+            </div>
+            <div style="grid-column: span 2;">
+              <label style="font-size:0.75rem; color:var(--text-muted);">InBody Score (Out of 100)</label>
+              <input type="number" id="inbody-input-score" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="1" placeholder="85">
+            </div>
+          </div>
+
+          <button id="btn-save-inbody-manual" class="submit-ai-btn" style="margin-top:8px;">
+            <i class="fa-solid fa-floppy-disk"></i> Save InBody Scan
+          </button>
+        </div>
       </div>
     </div>
+
   </div>
 
   <script src="app.js?v=20260919"></script>

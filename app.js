@@ -1,6 +1,10 @@
-/* ==========================================================================
-   MICHAEL'S RECOMP HEALTH PWA - CORE APPLICATION LOGIC
-   ========================================================================== */
+function getLocalDateString() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 const DEFAULT_STAPLES = [
   { name: "2 Scoops Whey Isolate", cal: 220, p: 44, c: 3, f: 2, fiber: 0 },
