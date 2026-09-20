@@ -1,0 +1,22 @@
+{
+  "name": "Michael Recomp Health Suite",
+  "short_name": "RecompTracker",
+  "description": "Mobile-first Nutrition, Strength & Body Recomposition Tracker for Michael",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0B0F17",
+  "theme_color": "#0F172A",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

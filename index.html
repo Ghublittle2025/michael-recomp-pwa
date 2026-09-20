@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0B0F17">
+  <meta name="description" content="Michael's Personal Health Tech & Body Recomposition Suite">
+  <title>RecompTracker - Michael</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+  
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    
+    <!-- Top Header -->
+    <header class="header-nav">
+      <div class="profile-summary">
+        <div class="avatar">M</div>
+        <div class="user-meta">
+          <h2>Michael <span style="font-size:0.75rem; color:var(--clr-primary); font-weight:600;">(6'4")</span></h2>
+          <p>Current: <strong id="header-curr-wt">228</strong> lbs &bull; Goal: <strong style="color:var(--clr-success);">220</strong> lbs</p>
+        </div>
+      </div>
+      <button id="btn-open-settings" class="icon-btn" title="Settings">
+        <i class="fa-solid fa-gear"></i>
+      </button>
+    </header>
+
+    <!-- Main Content Containers -->
+    <main>
+      
+      <!-- VIEW 1: DASHBOARD & MACRO RINGS -->
+      <section id="view-dashboard" class="view active">
+        <div class="glass-card highlight">
+          <div class="card-title">
+            <span><i class="fa-solid fa-fire"></i> Daily Caloric Runway</span>
+            <span style="font-size:0.8rem; color:var(--text-muted);" id="dashboard-date-str">Today</span>
+          </div>
+          
+          <div class="ring-container">
+            <svg class="ring-svg" viewBox="0 0 200 200">
+              <defs>
+                <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00F2FE" />
+                  <stop offset="100%" stop-color="#4FACFE" />
+                </linearGradient>
+              </defs>
+              <circle class="ring-bg" cx="100" cy="100" r="90" />
+              <circle id="caloric-ring-fill" class="ring-progress" cx="100" cy="100" r="90" />
+            </svg>
+            <div class="ring-text">
+              <div id="ring-remaining-kcals" class="ring-number">2500</div>
+              <div class="ring-label">kcal remaining</div>
+              <div style="font-size:0.7rem; color:var(--text-dim); margin-top:4px;">
+                <span id="ring-consumed-kcals">0</span> / 2500 kcal
+              </div>
+            </div>
+          </div>
+
+          <!-- Macro Linear Bars -->
+          <div class="macro-bars">
+            <!-- Protein (Non-negotiable Floor) -->
+            <div class="bar-item">
+              <div class="bar-info">
+                <span><i class="fa-solid fa-drumstick-bite" style="color:var(--clr-success);"></i> Protein (Floor: 210g)</span>
+                <span id="protein-status"><strong style="color:var(--clr-success);">0g</strong> / 210g</span>
+              </div>
+              <div class="progress-track">
+                <div id="protein-bar-fill" class="progress-fill fill-protein" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Carbohydrates -->
+            <div class="bar-item">
+              <div class="bar-info">
+                <span><i class="fa-solid fa-wheat-awn" style="color:var(--clr-warning);"></i> Carbohydrates</span>
+                <span id="carbs-status" class="muted">0g / 220g</span>
+              </div>
+              <div class="progress-track">
+                <div id="carbs-bar-fill" class="progress-fill fill-carbs" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Fats -->
+            <div class="bar-item">
+              <div class="bar-info">
+                <span><i class="fa-solid fa-avocado" style="color:var(--clr-purple);"></i> Healthy Fats</span>
+                <span id="fat-status" class="muted">0g / 65g</span>
+              </div>
+              <div class="progress-track">
+                <div id="fat-bar-fill" class="progress-fill fill-fat" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Soluble Fiber -->
+            <div class="bar-item" style="margin-top:4px;">
+              <div class="bar-info">
+                <span><i class="fa-solid fa-seedling" style="color:var(--clr-secondary);"></i> Soluble Fiber (LDL Control)</span>
+                <span id="fiber-status" class="muted">0g / 30g</span>
+              </div>
+              <div class="progress-track">
+                <div id="fiber-bar-fill" class="progress-fill fill-fiber" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Health Guardrails Monitor -->
+        <div class="glass-card">
+          <div class="card-title">
+            <span><i class="fa-solid fa-heart-pulse"></i> Health Guardrails</span>
+          </div>
+          <div class="guardrails-grid">
+            <div class="guardrail-card">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              <div class="guardrail-title">Feeding Spacing</div>
+              <div id="guardrail-spacing-val" class="guardrail-value">3.0 hrs ago</div>
+              <span id="guardrail-spacing-pill" class="alert-pill pill-success">Optimal (2.5-3.5h)</span>
+            </div>
+
+            <div class="guardrail-card">
+              <i class="fa-solid fa-shield-halved"></i>
+              <div class="guardrail-title">Iron Pairing</div>
+              <div id="guardrail-iron-val" class="guardrail-value">Calcium OK</div>
+              <span class="alert-pill pill-success">Ferritin Safe</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Logs Feed -->
+        <div class="glass-card">
+          <div class="card-title">
+            <span><i class="fa-solid fa-utensils"></i> Today's Meals</span>
+            <button id="btn-refresh-dashboard" class="icon-btn" style="width:28px; height:28px; font-size:0.75rem;"><i class="fa-solid fa-arrows-rotate"></i></button>
+          </div>
+          <div id="today-meals-list">
+            <p style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:10px 0;">No meals logged yet today.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: 1-TAP QUICK LOG & AI VOICE ASSISTANT -->
+      <section id="view-quicklog" class="view">
+        
+        <!-- Gemini AI Voice & Text Assistant -->
+        <div class="glass-card highlight">
+          <div class="card-title">
+            <span><i class="fa-solid fa-brain"></i> Gemini Spark AI Assistant</span>
+            <span class="alert-pill pill-success" id="ai-status-pill">Gemini 1.5 Flash</span>
+          </div>
+          
+          <div class="ai-logger-container">
+            <!-- AI Mode Switcher -->
+            <div style="display:flex; gap:8px; margin-bottom:4px;">
+              <button id="btn-mode-log" class="tab-btn active" style="flex:1; padding:6px 10px; font-size:0.75rem;">
+                <i class="fa-solid fa-utensils"></i> Log & Save Meal
+              </button>
+              <button id="btn-mode-suggest" class="tab-btn" style="flex:1; padding:6px 10px; font-size:0.75rem;">
+                <i class="fa-solid fa-comments"></i> Ask AI (Consult Only)
+              </button>
+            </div>
+
+            <div class="input-group">
+              <input type="text" id="ai-text-input" class="ai-input" placeholder="Type, speak, or take a photo: 'Chicken breast...' or 'What to order?'">
+              <input type="file" id="ai-image-input" accept="image/*" capture="environment" style="display:none;">
+              <button id="btn-camera-toggle" class="mic-btn" style="background:linear-gradient(135deg, #9D50BB, #6E48AA); box-shadow:0 4px 14px rgba(157,80,187,0.3);" title="Take or Upload Meal Photo">
+                <i class="fa-solid fa-camera"></i>
+              </button>
+              <button id="btn-mic-toggle" class="mic-btn" title="Voice Input">
+                <i class="fa-solid fa-microphone"></i>
+              </button>
+            </div>
+
+            <!-- Image Preview Box -->
+            <div id="ai-image-preview-container" style="display:none; align-items:center; gap:10px; background:rgba(0,0,0,0.3); padding:8px 12px; border-radius:12px; border:1px solid var(--border-accent); margin-top:4px;">
+              <img id="ai-image-preview-img" style="width:48px; height:48px; object-fit:cover; border-radius:8px; border:1px solid var(--clr-primary);" alt="Meal Photo">
+              <div style="flex:1; overflow:hidden;">
+                <div style="font-weight:600; font-size:0.8rem; color:var(--clr-primary);">Photo Attached for AI Analysis</div>
+                <div id="ai-image-filename" style="font-size:0.7rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">meal.jpg</div>
+              </div>
+              <button id="btn-remove-photo" class="mini-action-btn delete-btn" title="Remove Photo"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <button id="btn-submit-ai" class="submit-ai-btn">
+              <i class="fa-solid fa-sparkles"></i> Analyze & Log via Gemini AI
+            </button>
+          </div>
+
+          <!-- AI Response Feedback Card -->
+          <div id="ai-response-card" class="ai-response-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span id="ai-grade-badge" class="grade-badge grade-A">Grade A</span>
+              <span id="ai-parsed-kcals" style="font-weight:700; color:var(--clr-primary);">0 kcal</span>
+            </div>
+            <p id="ai-parsed-name" style="font-weight:600; font-size:0.95rem; margin-top:4px;"></p>
+            <p id="ai-parsed-macros" style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;"></p>
+            <div id="ai-guardrail-feedback" style="font-size:0.8rem; color:var(--text-main); margin-top:8px; line-height:1.4; background:rgba(0,0,0,0.3); padding:10px; border-radius:8px; border-left:3px solid var(--clr-primary);"></div>
+            
+            <!-- Button to log consulted meal into daily record -->
+            <button id="btn-log-consulted-meal" class="submit-ai-btn" style="margin-top:10px; width:100%; display:none; background:linear-gradient(135deg, var(--clr-success), #00F2FE); box-shadow:0 4px 14px rgba(0,230,118,0.3);">
+              <i class="fa-solid fa-plus-circle"></i> Log This Meal into Daily Record
+            </button>
+          </div>
+        </div>
+
+        <!-- 1-Tap Quick-Logging Grid -->
+        <div class="glass-card">
+          <div class="card-title">
+            <span><i class="fa-solid fa-bolt"></i> 1-Tap Staples Grid</span>
+            <button id="btn-open-staples-editor" class="icon-btn" style="width:28px; height:28px; font-size:0.75rem;" title="Edit Staples">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+
+          <div id="staples-grid-container" class="staples-grid">
+            <!-- Rendered dynamically by app.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: 4-DAY WORKOUT CYCLE & PER-SET CALCULATOR -->
+      <section id="view-workout" class="view">
+        <div class="glass-card highlight">
+          <div class="card-title">
+            <span><i class="fa-solid fa-dumbbell"></i> 4-Day Strength Cycle</span>
+            <span class="alert-pill pill-success" id="active-day-badge">Day 1</span>
+          </div>
+
+          <!-- Day Cycle Switcher -->
+          <div class="cycle-tabs">
+            <button class="tab-btn active" data-day="1">Day 1: Push</button>
+            <button class="tab-btn" data-day="2">Day 2: Pull</button>
+            <button class="tab-btn" data-day="3">Day 3: Legs & Core</button>
+            <button class="tab-btn" data-day="4">Day 4: Upper Overload</button>
+          </div>
+
+          <!-- Per-Set Working Weight Rule Info -->
+          <div class="calculator-box">
+            <span class="calc-rule-badge"><i class="fa-solid fa-calculator"></i> Per-Set Working Weight Rule</span>
+            <p style="font-size:0.78rem; color:var(--text-muted); line-height:1.4;">
+              Working Weight per set is computed as: <strong style="color:var(--clr-primary);">Set Volume ÷ Reps</strong>. Tracks warmups vs working sets and pyramid fatigue points.
+            </p>
+          </div>
+
+          <!-- Exercise List Container -->
+          <div id="workout-exercises-container">
+            <!-- Dynamic exercises injected by app.js -->
+          </div>
+
+          <button id="btn-log-workout-session" class="submit-ai-btn" style="width:100%; margin-top:10px;">
+            <i class="fa-solid fa-check"></i> Complete & Log Workout Session
+          </button>
+        </div>
+      </section>
+
+      <!-- VIEW 4: INBODY COMPOSITION TRENDS -->
+      <section id="view-trends" class="view">
+        <div class="glass-card highlight">
+          <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa-solid fa-chart-line"></i> InBody Recomposition Trends</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="file" id="inbody-scan-image-input" accept="image/*" capture="environment" style="display:none;">
+              <button id="btn-upload-inbody-scan" class="submit-ai-btn" style="padding:4px 10px; font-size:0.75rem; background:linear-gradient(135deg, var(--clr-primary), var(--clr-purple));" title="Scan InBody Result Sheet via Gemini Vision AI">
+                <i class="fa-solid fa-camera"></i> Scan InBody Sheet
+              </button>
+              <button id="btn-add-checkin" onclick="openInBodyManualModal()" class="icon-btn" style="width:30px; height:30px; font-size:0.8rem;" title="Manual Entry"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+
+          <!-- Chart canvas -->
+          <div class="chart-container">
+            <canvas id="inbodyChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Latest Scan Summary -->
+        <div class="glass-card">
+          <div class="card-title">
+            <span><i class="fa-solid fa-scale-balanced"></i> Latest InBody Scan</span>
+          </div>
+          <div class="guardrails-grid">
+            <div class="guardrail-card">
+              <div class="guardrail-title">Scale Weight</div>
+              <div id="scan-weight-val" class="guardrail-value">228.4 lbs</div>
+              <span class="alert-pill pill-warning">Goal: 220 lbs</span>
+            </div>
+            <div class="guardrail-card">
+              <div class="guardrail-title">Skeletal Muscle (SMM)</div>
+              <div id="scan-smm-val" class="guardrail-value">104.2 lbs</div>
+              <span class="alert-pill pill-success">High Muscle Retention</span>
+            </div>
+            <div class="guardrail-card">
+              <div class="guardrail-title">Body Fat %</div>
+              <div id="scan-bfp-val" class="guardrail-value">18.5 %</div>
+              <span class="alert-pill pill-success">Driving Down</span>
+            </div>
+            <div class="guardrail-card">
+              <div class="guardrail-title">InBody Score</div>
+              <div id="scan-score-val" class="guardrail-value">84 / 100</div>
+              <span class="alert-pill pill-success">Recomp Zone</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-view="view-dashboard">
+        <i class="fa-solid fa-chart-pie"></i>
+        <span>Macros</span>
+      </button>
+      <button class="nav-item" data-view="view-quicklog">
+        <i class="fa-solid fa-bolt"></i>
+        <span>1-Tap & AI</span>
+      </button>
+      <button class="nav-item" data-view="view-workout">
+        <i class="fa-solid fa-dumbbell"></i>
+        <span>Workout</span>
+      </button>
+      <button class="nav-item" data-view="view-trends">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>InBody</span>
+      </button>
+    </nav>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="card-title">
+          <span><i class="fa-solid fa-sliders"></i> App Configuration</span>
+          <button id="btn-close-settings" class="icon-btn" style="width:28px; height:28px;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Google Apps Script Web App URL</label>
+            <input type="text" id="setting-webapp-url" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:8px; margin-top:4px;" placeholder="https://script.google.com/macros/s/.../exec">
+          </div>
+
+          <div>
+            <label style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">Google AI Studio Gemini API Key</label>
+            <input type="password" id="setting-gemini-key" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:8px; margin-top:4px;" placeholder="AIzaSy...">
+          </div>
+
+          <button id="btn-save-settings" class="submit-ai-btn" style="margin-top:8px;">
+            <i class="fa-solid fa-floppy-disk"></i> Save Configuration
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit / Add Staples Modal -->
+    <div id="staples-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="card-title">
+          <span id="staples-modal-title"><i class="fa-solid fa-pen-to-square"></i> Manage 1-Tap Staple</span>
+          <button id="btn-close-staples" class="icon-btn" style="width:28px; height:28px;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <input type="hidden" id="staple-edit-index" value="-1">
+
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+          <div>
+            <label style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">Staple Name</label>
+            <input type="text" id="staple-input-name" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:8px; margin-top:4px;" placeholder="e.g. Ka'Chava Shake">
+          </div>
+          <div>
+            <label style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">Portion / Serving Info (Optional)</label>
+            <input type="text" id="staple-input-portion" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:8px; margin-top:4px;" placeholder="e.g. 6 oz, 2 scoops, 1 wrap">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div>
+              <label style="font-size:0.75rem; color:var(--text-muted);">Calories (kcal)</label>
+              <input type="number" id="staple-input-cal" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" placeholder="240">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; color:var(--text-muted);">Protein (g)</label>
+              <input type="number" id="staple-input-p" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" placeholder="25">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; color:var(--text-muted);">Carbs (g)</label>
+              <input type="number" id="staple-input-c" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" placeholder="24">
+            </div>
+            <div>
+              <label style="font-size:0.75rem; color:var(--text-muted);">Fat (g)</label>
+              <input type="number" id="staple-input-f" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" placeholder="7">
+            </div>
+            <div style="grid-column: span 2;">
+              <label style="font-size:0.75rem; color:var(--text-muted);">Soluble Fiber (g)</label>
+              <input type="number" id="staple-input-fiber" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" placeholder="4">
+            </div>
+          </div>
+
+          <button id="btn-save-custom-staple" class="submit-ai-btn" style="margin-top:8px;">
+            <i class="fa-solid fa-floppy-disk"></i> Save Staple
+          </button>
+        </div>
+  </div>
+
+  <!-- Manual InBody Entry Modal -->
+  <div id="modal-inbody-checkin" class="modal-overlay">
+    <div class="modal-content">
+      <div class="card-title">
+        <span><i class="fa-solid fa-calculator"></i> Log InBody Scan Manually</span>
+        <button id="btn-close-inbody-modal" onclick="closeInBodyManualModal()" class="icon-btn" style="width:28px; height:28px;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+        <div>
+          <label style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">Scan Date</label>
+          <input type="date" id="inbody-input-date" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:8px; margin-top:4px;">
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">Scale Weight (lbs)</label>
+            <input type="number" id="inbody-input-weight" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="0.1" placeholder="228.8">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">Skeletal Muscle (lbs)</label>
+            <input type="number" id="inbody-input-smm" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="0.1" placeholder="104.1">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">Body Fat % (e.g. 21.6)</label>
+            <input type="number" id="inbody-input-bfp" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="0.1" placeholder="21.6">
+          </div>
+          <div>
+            <label style="font-size:0.75rem; color:var(--text-muted);">Body Fat Mass (lbs)</label>
+            <input type="number" id="inbody-input-bfm" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="0.1" placeholder="49.4">
+          </div>
+          <div style="grid-column: span 2;">
+            <label style="font-size:0.75rem; color:var(--text-muted);">InBody Score (Out of 100)</label>
+            <input type="number" id="inbody-input-score" class="ai-input" style="width:100%; border:1px solid var(--border-glass); border-radius:8px; padding:6px; margin-top:2px;" step="1" placeholder="85">
+          </div>
+        </div>
+
+        <button id="btn-save-inbody-manual" class="submit-ai-btn" style="margin-top:8px;">
+          <i class="fa-solid fa-floppy-disk"></i> Save InBody Scan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js?v=20260919"></script>
+</body>
+</html>
